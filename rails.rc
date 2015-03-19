@@ -1,0 +1,6 @@
+--template=/home/ayqazi/src/rails-bootstrap/template.rb
+--database=postgresql
+--skip-spring
+--skip-test-unit
+--skip-turbolinks
+--skip-bundle
