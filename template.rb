@@ -58,5 +58,18 @@ run "bundle install"
 generate "rspec:install"
 run %q{sed -i -e '/Rails\.root\.join.*spec\/support.*require f/c \Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }' spec/rails_helper.rb}
 
+file "db/migrate/00000000000001_add_hstore_uuid_extensions.rb", <<-EOL
+class AddHstoreUuidExtensions < ActiveRecord::Migration
+  def up
+    enable_extension "hstore"
+    enable_extension "uuid-ossp"
+  end
+
+  def down
+    raise ActiveRecord::IrreversibleMigration
+  end
+end
+EOL
+
 gen_controller "homepage index"
 route 'root to: "homepage#index"'
