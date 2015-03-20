@@ -19,6 +19,9 @@ gem_group :development, :test do
   gem "rspec-rails"
 end
 
+run %q{bash -c "sed -i -e '/ *#/d' -e '/^ *$/d' -e 's/_development$/_dev/g' config/database.yml"}
+run %q{bash -c "sed -r -i -e \"s/key: '_([a-z_]+)_session'/key: %Q[_\1_#{Rails.env}_session]/\" config/initializers/session_store.rb"}
+
 FileUtils.rm "app/assets/stylesheets/application.css"
 File.open("app/assets/stylesheets/application.scss", "ab") do |f|
   f.write <<-EOL
