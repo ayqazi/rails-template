@@ -1,5 +1,5 @@
 def gen_controller(names)
-  generate :controller, names, "--skip-assets --skip-helper --skip-view-specs"
+  generate :controller, names, "--skip-assets --skip-helper --skip-view-specs --skip-controller-specs"
 end
 
 run ">Gemfile"
@@ -22,6 +22,8 @@ end
 
 run %q{bash -c "sed -i -e '/ *#/d' -e '/^ *$/d' -e 's/_development$/_dev/g' config/database.yml"}
 run %q{bash -c "sed -r -i -e \"s/key: '_([a-z_]+)_session'/key: %Q[_\1_#{Rails.env}_session]/\" config/initializers/session_store.rb"}
+
+"app/models/concerns".tap {|s| FileUtils.rm_r s if File.exist? s}
 
 "app/views/layouts/application.html.erb".tap {|s| FileUtils.rm s if File.exist? s}
 file "app/views/layouts/application.html.haml", <<-EOL
@@ -69,6 +71,11 @@ class AddHstoreUuidExtensions < ActiveRecord::Migration
   def down
     raise ActiveRecord::IrreversibleMigration
   end
+end
+EOL
+
+file "config/routes.rb", <<-EOL
+Rails.application.routes.draw do
 end
 EOL
 
