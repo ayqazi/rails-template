@@ -2,7 +2,8 @@ def gen_controller(names)
   generate :controller, names, "--skip-assets --skip-helper --skip-view-specs"
 end
 
-run "echo \"source 'https://rubygems.org'\" > Gemfile"
+run ">Gemfile"
+add_source "https://rubygems.org"
 gem "rails", "~> 4.2.1"
 gem "pg"
 
@@ -22,27 +23,40 @@ end
 run %q{bash -c "sed -i -e '/ *#/d' -e '/^ *$/d' -e 's/_development$/_dev/g' config/database.yml"}
 run %q{bash -c "sed -r -i -e \"s/key: '_([a-z_]+)_session'/key: %Q[_\1_#{Rails.env}_session]/\" config/initializers/session_store.rb"}
 
-FileUtils.rm "app/assets/stylesheets/application.css"
-File.open("app/assets/stylesheets/application.scss", "ab") do |f|
-  f.write <<-EOL
+file "app/views/layouts/application.html.haml", <<-EOL
+!!!
+%html{:lang => "en"}
+  %head
+    %meta{:charset => "utf-8"}
+    %meta{:content => "IE=edge", "http-equiv" => "X-UA-Compatible"}
+    %meta{:content => "width=device-width, initial-scale=1", :name => "viewport"}
+
+    %title Application
+
+    = stylesheet_link_tag    'application', media: 'all'
+    = csrf_meta_tags
+  %body
+    = yield
+    = javascript_include_tag 'application'
+EOL
+
+"app/assets/stylesheets/application.css".tap {|s| FileUtils.rm s if File.exist? s}
+file "app/assets/stylesheets/application.scss", <<-EOL
 @import "bootstrap-sprockets";
 @import "bootstrap";
-  EOL
-end
+EOL
 
-File.open("app/assets/javascripts/application.js", "ab") do |f|
-  f.write <<-EOL
+file "app/assets/javascripts/application.js", <<-EOL
 //= require jquery
 //= require jquery_ujs
 //= require bootstrap-sprockets
 //= require_tree .
-  EOL
-end
+EOL
 
 run "bundle install"
 
-after_bundle do
-  generate "rspec:install"
-  gen_controller "homepage index"
-  route 'root to: "homepage#index"'
-end
+generate "rspec:install"
+run %q{sed -i -e '/Rails\.root\.join.*spec\/support.*require f/c \Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }' spec/rails_helper.rb}
+
+gen_controller "homepage index"
+route 'root to: "homepage#index"'
