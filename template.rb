@@ -4,7 +4,7 @@ end
 
 run ">Gemfile"
 add_source "https://rubygems.org"
-gem "rails", "~> 4.2.1"
+gem "rails", "~> 4.2.4"
 gem "pg"
 
 gem "haml-rails"
