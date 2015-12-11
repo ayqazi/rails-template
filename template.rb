@@ -77,7 +77,7 @@ class AddHstoreAndUuidExtensions < ActiveRecord::Migration
 end
 EOL
 
-"config/routes".tap do |s|
+"config/routes.rb".tap do |s|
   FileUtils.rm s if File.exist? s
   file s, <<-EOL
 Rails.application.routes.draw do
