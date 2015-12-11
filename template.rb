@@ -62,8 +62,8 @@ run "bundle install"
 generate "rspec:install"
 run %q{sed -i -e '/Rails\.root\.join.*spec\/support.*require f/c \Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }' spec/rails_helper.rb}
 
-file "db/migrate/00000000000001_add_hstore_uuid_extensions.rb", <<-EOL
-class AddHstoreUuidExtensions < ActiveRecord::Migration
+file "db/migrate/00000000000001_add_hstore_and_uuid_extensions.rb", <<-EOL
+class AddHstoreAndUuidExtensions < ActiveRecord::Migration
   def up
     enable_extension "hstore"
     enable_extension "uuid-ossp"
