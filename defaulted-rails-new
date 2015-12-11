@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -ue
+
+ROOT_PATH="$(dirname ${BASH_SOURCE[0]})"
+
+rails new \
+    --ruby="/usr/bin/env ruby" \
+    --template="${ROOT_PATH}/template.rb" \
+    --database=postgresql \
+    --skip-spring \
+    --skip-test-unit \
+    --skip-turbolinks \
+    --skip-bundle \
+    "${@}"
