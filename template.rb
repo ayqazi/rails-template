@@ -23,10 +23,9 @@ end
 run %q{bash -c "sed -i -e '/ *#/d' -e '/^ *$/d' -e 's/_development$/_dev/g' config/database.yml"}
 run %q{bash -c "sed -r -i -e \"s/key: '_([a-z_]+)_session'/key: %Q[_\1_#{Rails.env}_session]/\" config/initializers/session_store.rb"}
 
-"app/models/concerns".tap {|s| FileUtils.rm_r s if File.exist? s}
-"app/controllers/concerns".tap {|s| FileUtils.rm_r s if File.exist? s}
+["app/models/concerns", "app/controllers/concerns"].each { |path| FileUtils.rm_r path if File.exist? path }
 
-"app/views/layouts/application.html.erb".tap {|s| FileUtils.rm s if File.exist? s}
+"app/views/layouts/application.html.erb".tap {|path| FileUtils.rm path if File.exist? path}
 file "app/views/layouts/application.html.haml", <<-EOL
 !!!
 %html{:lang => "en"}
@@ -50,12 +49,15 @@ file "app/assets/stylesheets/application.scss", <<-EOL
 @import "bootstrap";
 EOL
 
-file "app/assets/javascripts/application.js", <<-EOL
+"app/assets/javascripts/application.js".tap do |s|
+  FileUtils.rm s if File.exist? s
+  file s, <<-EOL
 //= require jquery
 //= require jquery_ujs
 //= require bootstrap-sprockets
 //= require_tree .
-EOL
+  EOL
+end
 
 run "bundle install"
 
@@ -75,10 +77,13 @@ class AddHstoreAndUuidExtensions < ActiveRecord::Migration
 end
 EOL
 
-file "config/routes.rb", <<-EOL
+"config/routes".tap do |s|
+  FileUtils.rm s if File.exist? s
+  file s, <<-EOL
 Rails.application.routes.draw do
 end
-EOL
+  EOL
+end
 
 gen_controller "homepage index"
 route 'root to: "homepage#index"'
