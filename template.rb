@@ -1,32 +1,39 @@
 def gen_controller(names)
-  generate :controller, names, "--skip-assets --skip-helper --skip-view-specs --skip-controller-specs"
+  generate :controller, names, '--skip-assets --skip-helper --skip-view-specs --skip-controller-specs'
 end
 
-run ">Gemfile"
-add_source "https://rubygems.org"
-gem "rails", "~> 4.2.5"
-gem "pg"
+run '>Gemfile'
+add_source 'https://rubygems.org'
+gem 'rails', '~> 5.1.4'
+gem 'pg', '~> 0.18'
+gem 'puma', '~> 3.7'
 
-gem "haml-rails"
+gem 'sass-rails', '~> 5.0'
+gem 'uglifier', '>= 1.3.0'
+gem 'jbuilder', '~> 2.5'
 
-gem "uglifier", ">= 1.3.0"
-gem "jquery-rails"
-gem "sass-rails", "~> 5.0"
-gem "bootstrap-sass", "~> 3.3.6"
+gem 'haml-rails', '~> 1.0'
 
+gem 'jquery-rails', '~> 4.3'
+gem 'sass-rails', '~> 5.0'
+gem 'bootstrap', '~> 4.0'
+
+gem_group :development do
+  gem 'web-console', '>= 3.3.0'
+  gem 'listen', '>= 3.0.5', '< 3.2'
+end
 
 gem_group :development, :test do
-  gem "byebug"
-  gem "rspec-rails"
+  gem 'pry', '~> 0.11'
+  gem 'rspec-rails', '~> 3.7'
 end
 
-run %q{bash -c "sed -i -e '/ *#/d' -e '/^ *$/d' -e 's/_development$/_dev/g' config/database.yml"}
-run %q{bash -c "sed -r -i -e \"s/key: '_([a-z_]+)_session'/key: %Q[_\1_#{Rails.env}_session]/\" config/initializers/session_store.rb"}
+run %q{bash -c "sed -i -e '/ *#/d' -e '/^ *$/d' -e 's/_development$/_dev/g' -e 's/_production//g' config/database.yml"}
 
-["app/models/concerns", "app/controllers/concerns"].each { |path| FileUtils.rm_r path if File.exist? path }
+['app/models/concerns', 'app/controllers/concerns'].each { |path| FileUtils.rm_r path if File.exist? path }
 
-"app/views/layouts/application.html.erb".tap {|path| FileUtils.rm path if File.exist? path}
-file "app/views/layouts/application.html.haml", <<-EOL
+'app/views/layouts/application.html.erb'.tap {|path| FileUtils.rm path if File.exist? path}
+file 'app/views/layouts/application.html.haml', <<-EOL
 !!!
 %html{:lang => "en"}
   %head
@@ -43,32 +50,30 @@ file "app/views/layouts/application.html.haml", <<-EOL
     = javascript_include_tag 'application'
 EOL
 
-"app/assets/stylesheets/application.css".tap {|s| FileUtils.rm s if File.exist? s}
-file "app/assets/stylesheets/application.scss", <<-EOL
-@import "bootstrap-sprockets";
-@import "bootstrap";
+'app/assets/stylesheets/application.css'.tap {|s| FileUtils.rm s if File.exist? s}
+file 'app/assets/stylesheets/application.scss', <<-EOL
+@import 'bootstrap';
 EOL
 
-"app/assets/javascripts/application.js".tap do |s|
+'app/assets/javascripts/application.js'.tap do |s|
   FileUtils.rm s if File.exist? s
   file s, <<-EOL
-//= require jquery
+//= require jquery3
 //= require jquery_ujs
-//= require bootstrap-sprockets
+//= require popper
+//= require bootstrap
 //= require_tree .
   EOL
 end
 
-run "bundle install"
+run 'bundle install'
+run 'rspec --init'
 
-generate "rspec:install"
-run %q{sed -i -e '/Rails\.root\.join.*spec\/support.*require f/c \Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }' spec/rails_helper.rb}
-
-file "db/migrate/00000000000001_add_hstore_and_uuid_extensions.rb", <<-EOL
-class AddHstoreAndUuidExtensions < ActiveRecord::Migration
+file 'db/migrate/00000000000001_add_hstore_and_uuid_extensions.rb', <<-EOL
+class AddHstoreAndUuidExtensions < ActiveRecord::Migration[5.1]
   def up
-    enable_extension "hstore"
-    enable_extension "uuid-ossp"
+    enable_extension 'hstore'
+    enable_extension 'uuid-ossp'
   end
 
   def down
@@ -77,7 +82,7 @@ class AddHstoreAndUuidExtensions < ActiveRecord::Migration
 end
 EOL
 
-"config/routes.rb".tap do |s|
+'config/routes.rb'.tap do |s|
   FileUtils.rm s if File.exist? s
   file s, <<-EOL
 Rails.application.routes.draw do
@@ -85,5 +90,5 @@ end
   EOL
 end
 
-gen_controller "homepage index"
+gen_controller 'homepage index'
 route 'root to: "homepage#index"'

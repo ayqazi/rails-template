@@ -9,7 +9,8 @@ rails new \
     --template="${ROOT_PATH}/template.rb" \
     --database=postgresql \
     --skip-spring \
-    --skip-test-unit \
+    --skip-test \
+    --skip-system-test \
     --skip-turbolinks \
     --skip-bundle \
     "${@}"
