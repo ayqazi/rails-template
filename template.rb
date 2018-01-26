@@ -31,9 +31,13 @@ gem_group :development, :test do
   gem 'rspec-rails', '~> 3.7'
 end
 
+gem_group :test do
+  gem 'capybara', '~> 2.17'
+end
+
 FileUtils.mv 'config/database.yml', 'config/database.yml.example'
 run %q(bash -c "sed -i -e '/ *#/d' -e '/^ *$/d' -e 's/_development$/_dev/g' -e 's/_production//g' \
-       config/database.yml.example")
+ config/database.yml.example")
 
 ['app/models/concerns', 'app/controllers/concerns'].each { |path| FileUtils.rm_r path if File.exist? path }
 
@@ -71,7 +75,7 @@ EOL
   EOL
 end
 
-FileUtils.mkdir_p 'spec'
+%w[support features].each { |d| FileUtils.mkdir_p "spec/#{d}" }
 
 file 'spec/spec_helper.rb', <<~EOL
   RSpec.configure do |config|
@@ -114,6 +118,21 @@ file 'spec/rails_helper.rb', <<~'EOL'
   end
 EOL
 
+file 'spec/support/10_capybara.rb', <<~EOL
+  require 'capybara/rspec'
+EOL
+
+file 'spec/features/homepage_feature_spec.rb', <<~EOL
+  require 'rails_helper'
+
+  RSpec.feature 'Homepage' do
+    scenario 'works' do
+      visit '/'
+      expect(page).to have_content 'Home'
+    end
+  end
+EOL
+
 file '.rspec', <<~"EOL"
   --require spec_helper
 EOL
@@ -142,17 +161,17 @@ EOL
 
 '.gitignore'.tap do |f|
   FileUtils.rm f
-  file f, <<~EOL
-    /.bundle
-    /log/*
-    /tmp/*
-    !/log/.keep
-    !/tmp/.keep
-    /node_modules
-    /yarn-error.log
-    .byebug_history
-    vendor/bundle
-    config/database.yml
+  file f, <<-EOL
+  /.bundle
+  /log/*
+  /tmp/*
+  !/log/.keep
+  !/tmp/.keep
+  /node_modules
+  /yarn-error.log
+  .byebug_history
+  vendor/bundle
+  config/database.yml
   EOL
 end
 
